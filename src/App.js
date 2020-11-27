@@ -39,6 +39,16 @@ function App() {
     });
   }
 
+  const goPrevious = (search,query) => {
+    handleChange({
+      first: null,
+      after: null,
+      last: PER_PAGE,
+      before: search.pageInfo.startCursor,
+      query: query
+    });
+  }
+
   const { query, first, last, before, after } = DEFAULT_STATE;
 
   console.log(query)
@@ -77,6 +87,15 @@ function App() {
                   }
                 </ul>
                 {console.log(search.pageInfo)}
+                {
+                  search.pageInfo.hasPreviousPage === true ?
+                    <button
+                      onClick={() => goPrevious(search,query)}
+                    >
+                      Previous
+                    </button> :
+                    null
+                }
                 {
                   search.pageInfo.hasNextPage === true ?
                     <button
