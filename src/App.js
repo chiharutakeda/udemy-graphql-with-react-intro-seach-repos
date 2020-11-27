@@ -7,8 +7,10 @@ import { useState } from "react";
 
 function App() {
 
+  const PER_PAGE = 5
+
   const [DEFAULT_STATE, handleChange] = useState({
-    first: 5,
+    first: PER_PAGE,
     after: null,
     last: null,
     before: null,
@@ -25,6 +27,16 @@ function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+  }
+
+  const goNext = (search,query) => {
+    handleChange({
+      first: PER_PAGE,
+      after: search.pageInfo.endCursor,
+      last: null,
+      before: null,
+      query: query
+    });
   }
 
   const { query, first, last, before, after } = DEFAULT_STATE;
@@ -64,6 +76,16 @@ function App() {
                     })
                   }
                 </ul>
+                {console.log(search.pageInfo)}
+                {
+                  search.pageInfo.hasNextPage === true ?
+                    <button
+                      onClick={() => goNext(search,query)}
+                    >
+                      Next
+                    </button> :
+                    null
+                }
               </>
             )
           }
