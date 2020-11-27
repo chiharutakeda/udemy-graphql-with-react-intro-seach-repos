@@ -5,6 +5,19 @@ import { Query } from "react-apollo";
 import { useState } from "react";
 
 
+const StarButton = (props) => {
+
+  const totalCount = props.node.stargazers.totalCount
+
+  return (
+    <button>
+      {totalCount === 1 ? "1 star" : `${totalCount} stars`}
+    </button>
+  )
+
+}
+
+
 function App() {
 
   const PER_PAGE = 5
@@ -29,7 +42,7 @@ function App() {
     e.preventDefault()
   }
 
-  const goNext = (search,query) => {
+  const goNext = (search, query) => {
     handleChange({
       first: PER_PAGE,
       after: search.pageInfo.endCursor,
@@ -39,7 +52,7 @@ function App() {
     });
   }
 
-  const goPrevious = (search,query) => {
+  const goPrevious = (search, query) => {
     handleChange({
       first: null,
       after: null,
@@ -81,6 +94,8 @@ function App() {
                       return (
                         <li key={node.id}>
                           <a href={node.url} target="_blank" rel="noreferrer">{node.name}</a>
+                          &nbsp;
+                          <StarButton node={node} />
                         </li>
                       )
                     })
@@ -90,7 +105,7 @@ function App() {
                 {
                   search.pageInfo.hasPreviousPage === true ?
                     <button
-                      onClick={() => goPrevious(search,query)}
+                      onClick={() => goPrevious(search, query)}
                     >
                       Previous
                     </button> :
@@ -99,7 +114,7 @@ function App() {
                 {
                   search.pageInfo.hasNextPage === true ?
                     <button
-                      onClick={() => goNext(search,query)}
+                      onClick={() => goNext(search, query)}
                     >
                       Next
                     </button> :
