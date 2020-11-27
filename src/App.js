@@ -7,7 +7,7 @@ import {useState} from "react";
 
 function App() {
 
-  const [VARIABLES] = useState({
+  const [DEFAULT_STATE,handleChange] = useState({
     first: 5,
     after: null,
     last: null,
@@ -15,10 +15,26 @@ function App() {
     query: "フロントエンドエンジニア"
   });
   
-  const {query,first,last,before,after} = VARIABLES;
+  const setQueryWrap = (e) => {
+      const queryValue = e.target.value
+      handleChange({
+        ...DEFAULT_STATE,
+        query:queryValue
+      });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+  }
   
+  const {query,first,last,before,after} = DEFAULT_STATE;
+  
+  console.log(query)
   return (
     <ApolloProvider client={client}>
+      <form onSubmit={handleSubmit}>
+        <input value={query} onChange={setQueryWrap}/>
+      </form>
       <Query 
         query={SEARCH_REPOSITORIES}
         variables= {{query,first,last,before,after}}
