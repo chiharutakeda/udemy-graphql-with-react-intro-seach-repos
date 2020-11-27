@@ -6,12 +6,15 @@ import { useState } from "react";
 
 
 const StarButton = (props) => {
-
+  const node = props.node
+  const viewerHasStarred = node.viewerHasStarred
   const totalCount = props.node.stargazers.totalCount
+
+  const starCount = totalCount === 1 ? "1 star" : `${totalCount} stars`
 
   return (
     <button>
-      {totalCount === 1 ? "1 star" : `${totalCount} stars`}
+      {starCount} | {viewerHasStarred ? "starred" : "-"}
     </button>
   )
 
