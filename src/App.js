@@ -16,7 +16,29 @@ const StarButton = (props) => {
         onClick={
           //ここで引数を渡して初めてmutationが実行される
           () => addOrRemoveStar({
-            variables: { input: { starrableId: node.id } }
+            variables: { input: { starrableId: node.id } },
+            //mutation実行後呼ばれる関数を登録できる
+            update:(store,{data:{addStar,removeStar}}) => {
+              const {starrable} = addStar || removeStar
+              console.log({starrable})
+              const data = store.readQuery({
+                query: SEARCH_REPOSITORIES,
+                variables:{query,first,last,after,before}
+              })
+              const edges = data.search.edges
+              const newEdges = edges.map(edge=>{
+                if(edge.node.id===node.id){
+                  const totalCount = edge.node.stargazers.totalCount
+                  // const diff = viewerHasStarred ? -1:1
+                  const diff = starrable.viewerHasStarred ? 1:-1
+                  const newTotalCount = totalCount + diff
+                  edge.node.stargazers.totalCount = newTotalCount
+                }
+                return edge
+              })
+              data.search.edges = newEdges
+              store.writeQuery({query:SEARCH_REPOSITORIES,data})
+            }
           })
         }
       >
@@ -29,15 +51,6 @@ const StarButton = (props) => {
     //実行できる形にしてmutation渡す
     <Mutation
       mutation={viewerHasStarred ? REMOVE_STAR : ADD_STAR}
-      //mutation実行後に投げるqueryを設定できる
-      refetchQueries={
-        [
-          {
-            query: SEARCH_REPOSITORIES,
-            variables: { query, first, last, before, after }
-          }
-        ]
-      }
     >
       {
         //コールバック関数で名前をつけたmutationを引数にとれる
