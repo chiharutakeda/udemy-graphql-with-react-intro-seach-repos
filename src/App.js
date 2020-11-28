@@ -1,7 +1,6 @@
 import client from './client'
-import { ApolloProvider } from 'react-apollo'
-import { SEARCH_REPOSITORIES } from "./graphql";
-import { Query } from "react-apollo";
+import { ADD_STAR, SEARCH_REPOSITORIES } from "./graphql";
+import { Mutation, Query, ApolloProvider } from "react-apollo";
 import { useState } from "react";
 
 
@@ -12,10 +11,30 @@ const StarButton = (props) => {
 
   const starCount = totalCount === 1 ? "1 star" : `${totalCount} stars`
 
+  const StarStatus = ({ addStar }) => {
+    console.log(addStar)
+    return (
+      <button
+        onClick={
+          //ここで引数を渡して初めてmutationが実行される
+          ()=>addStar({
+            variables: { input: { starrableId: node.id } }
+          })
+        }
+      >
+        {starCount} | {viewerHasStarred ? "starred" : "-"}
+      </button>
+    )
+  }
+
   return (
-    <button>
-      {starCount} | {viewerHasStarred ? "starred" : "-"}
-    </button>
+    //実行できる形にしてmutation渡す
+    <Mutation mutation={ADD_STAR}>
+      {
+        //コールバック関数で名前をつけたmutationを引数にとれる
+        (addStar) => <StarStatus addStar={addStar} />
+      }
+    </Mutation>
   )
 
 }
@@ -69,20 +88,24 @@ function App() {
 
   console.log(query)
   return (
+    //どこのgraphQLサーバーにクエリをなげるかを決める。この中でquery,mutationwを使う
+    //おそらくレンダリングの時に毎回クエリ投げてる
     <ApolloProvider client={client}>
       <form onSubmit={handleSubmit}>
         <input value={query} onChange={setQueryWrap} />
       </form>
+      {/* クエリを投げる */}
       <Query
         query={SEARCH_REPOSITORIES}
         variables={{ query, first, last, before, after }}
       >
         {
+          //コールバック関数内で投げたクエリの結果が使えるようになる
           ({ loading, error, data }) => {
             if (loading) return 'Loading...'
             if (error) return `Error... ${error.message}`
             console.log({ data })
-
+            //受け取ったクエリの結果からjsxを作成できる
             const search = data.search
             const repositoryCount = search.repositoryCount
             const repositoryUnit = repositoryCount === 1 ? 'Repository' : "Repositories"
