@@ -1,5 +1,5 @@
 import client from './client'
-import { ADD_STAR, SEARCH_REPOSITORIES } from "./graphql";
+import { REMOVE_STAR, ADD_STAR, SEARCH_REPOSITORIES } from "./graphql";
 import { Mutation, Query, ApolloProvider } from "react-apollo";
 import { useState } from "react";
 
@@ -11,13 +11,12 @@ const StarButton = (props) => {
 
   const starCount = totalCount === 1 ? "1 star" : `${totalCount} stars`
 
-  const StarStatus = ({ addStar }) => {
-    console.log(addStar)
+  const StarStatus = ({ addOrRemoveStar }) => {
     return (
       <button
         onClick={
           //ここで引数を渡して初めてmutationが実行される
-          ()=>addStar({
+          () => addOrRemoveStar({
             variables: { input: { starrableId: node.id } }
           })
         }
@@ -29,10 +28,10 @@ const StarButton = (props) => {
 
   return (
     //実行できる形にしてmutation渡す
-    <Mutation mutation={ADD_STAR}>
+    <Mutation mutation={viewerHasStarred ? REMOVE_STAR : ADD_STAR}>
       {
         //コールバック関数で名前をつけたmutationを引数にとれる
-        (addStar) => <StarStatus addStar={addStar} />
+        (addOrRemoveStar) => <StarStatus addOrRemoveStar={addOrRemoveStar} />
       }
     </Mutation>
   )
