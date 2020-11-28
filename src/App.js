@@ -5,10 +5,9 @@ import { useState } from "react";
 
 
 const StarButton = (props) => {
-  const node = props.node
+  const { node, query, first, last, before, after } = props
   const viewerHasStarred = node.viewerHasStarred
   const totalCount = props.node.stargazers.totalCount
-
   const starCount = totalCount === 1 ? "1 star" : `${totalCount} stars`
 
   const StarStatus = ({ addOrRemoveStar }) => {
@@ -28,7 +27,18 @@ const StarButton = (props) => {
 
   return (
     //実行できる形にしてmutation渡す
-    <Mutation mutation={viewerHasStarred ? REMOVE_STAR : ADD_STAR}>
+    <Mutation
+      mutation={viewerHasStarred ? REMOVE_STAR : ADD_STAR}
+      //mutation実行後に投げるqueryを設定できる
+      refetchQueries={
+        [
+          {
+            query: SEARCH_REPOSITORIES,
+            variables: { query, first, last, before, after }
+          }
+        ]
+      }
+    >
       {
         //コールバック関数で名前をつけたmutationを引数にとれる
         (addOrRemoveStar) => <StarStatus addOrRemoveStar={addOrRemoveStar} />
@@ -120,7 +130,7 @@ function App() {
                         <li key={node.id}>
                           <a href={node.url} target="_blank" rel="noreferrer">{node.name}</a>
                           &nbsp;
-                          <StarButton node={node} />
+                          <StarButton node={node} {...{ query, first, last, after, before }} />
                         </li>
                       )
                     })
